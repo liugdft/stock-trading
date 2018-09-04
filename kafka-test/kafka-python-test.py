@@ -22,4 +22,4 @@ consumer = KafkaConsumer('test', bootstrap_servers='kafka01:9092', group_id='gro
 consumer = KafkaConsumer(bootstrap_servers='kafka01:9092', group_id='group2')
 consumer.assign([TopicPartition('test', 2)])
 for msg in consumer:
-	print (msg
+	print (msg)

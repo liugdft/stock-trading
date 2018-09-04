@@ -24,7 +24,7 @@ def morning_notice():
 		consumer.seek(TopicPartition('test', 0, rise_ratio_list_largest-1))
 		print(consumer.position([TopicPartition('test', 0)]))
 		print(consumer.position([TopicPartition('test', 1)]))
-		latest_rise_ratio = consumer.poll(1.0)
+		latest_rise_ratio = consumer.poll(3.0)
 		print(consumer.position([TopicPartition('test', 0)]))
 		print(consumer.position([TopicPartition('test', 1)]))
 
@@ -33,7 +33,7 @@ def morning_notice():
 		consumer.seek(TopicPartition('test', 1, volume_list_largest-1))
 		print(consumer.position([TopicPartition('test', 0)]))
 		print(consumer.position([TopicPartition('test', 1)]))
-		latest_volume = consumer.poll(1.0).value()
+		latest_volume = consumer.poll(3.0).value()
 		print(consumer.position([TopicPartition('test', 0)]))
 		print(consumer.position([TopicPartition('test', 1)]))
 		print(latest_volume)

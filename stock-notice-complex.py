@@ -12,11 +12,13 @@ consumer = Consumer({
 	'bootstrap.servers': 'Node1',
 	'group.id': 'stock_notice',
 	'enable.auto.commit': False,
-	# 'session.timeout.ms': 6000,
 	'default.topic.config': {
 		'auto.offset.reset': 'largest'
 	}
 })
+def convert_volume_format(volume):
+	# 转换 volume 和 金额 的格式，把包含 万、亿、百万、千万 字样的值转换为数值，方便计算和排序
+	
 
 def morning_notice():
 	#(rise_ratio_list_smallest, rise_ratio_list_largest) = consumer.get_watermark_offsets(TopicPartition('eastmoney', 0))
@@ -35,7 +37,8 @@ def morning_notice():
 		all_data = json.loads(consumer.poll(3.0).value())
 		latest_volume = pd.read_json(all_data["data"]).sort_index()
 		latest_volume["涨幅%"] = latest_volume["涨幅%"].map(lambda x: float(x.replace('----', '0.00')))
-		result = latest_volume.head(100).sort_values("涨幅%", ascending = False).head(20)
+		latest_volume["金额"] = latest_volume["金额"].map(lambda x: x if else if ))
+		result = latest_volume.head(500).sort_values("金额", ascending = False).head(100)
 		print("| 当前时间: " + time.strftime("%Y-%m-%d %H:%M:%S") + " | " + "数据更新时间: " + time.strftime("%Y-%m-%d %H:%M:%S" ,time.localtime(all_data["timestamp"]/1000000000)) + " |")
 		print(tabulate(result, headers='keys', tablefmt='psql'))
 	finally:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import socket, logging, json, time
+import socket, logging, json, time, atexit
 
 # 初始化日志信息
 log_file = '/home/liugdft/stock/stock-trading/windows-client/windows-client.log'
@@ -19,8 +19,12 @@ cmd_handler.setFormatter(log_format)
 logger.addHandler(log_handler)
 logger.addHandler(cmd_handler)
 
+host = ('10.2.11.35', 10000)
+
+def clean_atexit():
+	client_socket.close()
+
 def command_client(sort_by_value):
-	host = ('192.168.100.15', 10000)
 	client_socket = socket.socket()
 	try:
 		client_socket.connect(host)
@@ -56,13 +60,15 @@ def in_time_range(ranges):
 
 
 if __name__ == '__main__':
+	atexit.register(clean_atexit)
 	while True:
-		if in_time_range("090000-120000,130000-163000"):
-			command_client("rise_ratio")
+		# command_client("volume")
+		if in_time_range("093000-120000,130000-160000"):
+			# command_client("rise_ratio")
 			command_client("volume")
 			if in_time_range("093000-110000,130000-143000"):
 				time.sleep(5)
 			else:
-				time.sleep(15)
+				time.sleep(5)
 		else:
-			time.sleep(60)
+			time.sleep(1)

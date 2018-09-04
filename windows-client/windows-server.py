@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import socket, logging, json, time
+import socket, logging, json, time, atexit
 import pandas as pd
 import win32api, win32con
 from kafka import KafkaProducer
@@ -181,11 +181,18 @@ VK_CODE = {
 	"'":0xDE,
 	'`':0xC0}
 
-def windows_server():
-	server_socket = socket.socket()
-	server_socket.bind(host)
-	server_socket.listen(1)
+# 初始化到 kafka 的连接
+producer = KafkaProducer(bootstrap_servers='Node1:9092')
+
+# 初始化 socket server
+server_socket = socket.socket()
+server_socket.bind(host)
+server_socket.listen(1)
 	
+def clean_atexit():
+	conn.close()
+
+def windows_server():
 	while True:
 		conn, addr = server_socket.accept()
 		logger.info("received connection from client: " + str(addr))
@@ -218,19 +225,21 @@ def get_stockinfo_test(command):
 		return False
 	
 def get_stockinfo(command):
-	if command['parameter']['sort_by'] == "rise_ratio":
+	# 按照涨幅来排序效果并不好，只按照成交量排序，然后涨幅可以自己计算，会更快一下
+	# if command['parameter']['sort_by'] == "rise_ratio":
 		# 东方财富全景图 涨幅% 的点击位置
-		cursor_position = (417, 85)
-		partition_num = 0
-	elif command['parameter']['sort_by'] == "volume":
+		# cursor_position = (417, 85)
+		# partition_num = 0
+	# elif command['parameter']['sort_by'] == "volume":
 		# 东方财富全景图 总量 的点击位置
-		cursor_position = (547, 85)
-		partition_num = 1
-	else:
-		return False
+		# cursor_position = (547, 85)
+		# partition_num = 1
+	# else:
+		# return False
 	# 调试获取鼠标指针位置
 	# win32api.GetCursorPos()
-	
+	cursor_position = (547, 85)
+	partition_num = 0
 	# 点击按照某项指标排序
 	win32api.SetCursorPos(cursor_position)
 	win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
@@ -241,25 +250,25 @@ def get_stockinfo(command):
 	win32api.SetCursorPos((417, 105))
 	win32api.mouse_event(win32con.MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0)
 	win32api.mouse_event(win32con.MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0)
-	time.sleep(0.5)
+	time.sleep(0.6)
 
 	# 数据导出
 	win32api.SetCursorPos((518, 258))
 	win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
 	win32api.mouse_event(win32con.MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0)
-	time.sleep(0.5)
+	time.sleep(0.6)
 
 	# 导出全部数据
 	win32api.SetCursorPos((677, 261))
 	win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
 	win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
-	time.sleep(0.5)
+	time.sleep(1.4)
 
 	# 下一步，下一步，然后完成
 	win32api.SetCursorPos((1040, 638))
 	win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
 	win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
-	time.sleep(0.4)
+	time.sleep(0.5)
 	win32api.SetCursorPos((1040, 638))
 	win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
 	win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
@@ -267,7 +276,7 @@ def get_stockinfo(command):
 	win32api.SetCursorPos((1040, 638))
 	win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
 	win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
-	time.sleep(0.1)
+	time.sleep(0.2)
 
 	# 每次下载完成后，点击 代码 位置归位，方便下一次可以点击任何一个指标
 	# 东方财富全景图 代码 的点击位置
@@ -319,9 +328,8 @@ def get_stockinfo(command):
 	final_data_stream = json.dumps(final_data)
 	
 	# 把内容发送到 kafka
-	producer = KafkaProducer(bootstrap_servers='kafka01:9092')
-	future = producer.send('eastmoney', final_data_stream.encode('UTF-8'), partition=partition_num)
 	try:
+		future = producer.send('eastmoney', final_data_stream.encode('UTF-8'), partition=partition_num)
 		result = future.get(timeout=5)
 	except:
 		logger.error('send final_data_stream to kafka failed')
@@ -331,4 +339,5 @@ def get_stockinfo(command):
 		return True
 
 if __name__ == '__main__':
+	atexit.register(clean_atexit)
 	windows_server()

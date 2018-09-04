@@ -1,0 +1,8 @@
+2018-09-04 14:18:11,001 [open_context_base.py] _socket_reconnect_and_wait_ready:205: Start connecting: host=127.0.0.1; port=11111;
+2018-09-04 14:18:11,001 [open_context_base.py] _socket_reconnect_and_wait_ready:208: try connecting: host=127.0.0.1; port=11111;
+2018-09-04 14:18:11,042 [open_context_base.py] _handle_init_connect:365: sync socket init_connect ok: {'server_version': 102, 'login_user_id': 11326113, 'conn_id': 2614857840017240089, 'conn_key': '24705FF459D849F4', 'keep_alive_interval': 10}
+2018-09-04 14:22:07,850 [open_context_base.py] on_closed:310: Connect closed: conn_id=1
+2018-09-04 14:22:07,850 [open_context_base.py] _wait_reconnect:378: Wait reconnect in 8 seconds: host=127.0.0.1; port=11111;
+2018-09-04 14:22:15,851 [open_context_base.py] _socket_reconnect_and_wait_ready:205: Start connecting: host=127.0.0.1; port=11111;
+2018-09-04 14:22:15,851 [open_context_base.py] _socket_reconnect_and_wait_ready:208: try connecting: host=127.0.0.1; port=11111;
+2018-09-04 14:22:15,872 [open_context_base.py] _handle_init_connect:365: sync socket init_connect ok: {'server_version': 102, 'login_user_id': 11326113, 'conn_id': 13639691721970374647, 'conn_key': 'F057E1DD5AEC4984', 'keep_alive_interval': 10}

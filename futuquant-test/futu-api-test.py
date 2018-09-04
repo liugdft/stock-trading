@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from futuquant import *
+import pandas as pd
 # 连接到本地 FutuOpenD 网关
 quote_ctx = OpenQuoteContext(host='127.0.0.1', port=11111)
 
@@ -20,7 +21,7 @@ _, main_stocks = quote_ctx.get_plate_stock('HK.999910')
 
 watch_stocks = ['HK.00632', 'HK.00456']
 # 获取市场快照，一次最多 200 个票, 每 30 秒内只能获取 10 次
-# Q：市场快照的实时性？
+# Q：市场快照的实时性？ - 获取的是均线价格，如果价格没有变动，updte_time 和数据就不会变
 _, market_snapshot = quote_ctx.get_market_snapshot(watch_stocks)
 market_snapshot['rise_ratio'] = market_snapshot.apply(lambda x: x[code], axis=1)
 

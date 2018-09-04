@@ -14,6 +14,8 @@ def delivery_report(err, msg):
 
 producer = Producer({'bootstrap.servers': 'kafka01'})
 producer.produce('test', 'message_2 to topic test from confluent_kafka'.encode('UTF-8'), partition=4, callback=delivery_report)
+
+# producer 是异步的，flush 在所有的 produce 循环都完成了，需要关闭连接之前使用，如果每个 produce 之后都使用 flush，就变成同步阻塞式的了
 producer.flush()
 
 import confluent_kafka
@@ -67,7 +69,7 @@ print(msg)
 
 # offset：Either an absolute offset (>=0) or a logical offset: OFFSET_BEGINNING, OFFSET_END, OFFSET_STORED, OFFSET_INVALID
 while True:
-	msg = consumer.poll(1.0)
+	msg = consumer.poll(3.0)
 	if msg is None:
 		continue
 	if msg.error():
